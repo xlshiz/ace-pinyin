@@ -322,6 +322,9 @@ Default value is only using simplified Chinese characters.")
 (defvar ace-pinyin--original-avy-2 (symbol-function 'avy-goto-char-2)
   "Original definition of `avy-goto-char-2'.")
 
+(defvar ace-pinyin--original-avy-timer (symbol-function 'avy-goto-char-timer)
+  "Original definition of `avy-goto-char-timer'.")
+
 (defvar ace-pinyin--original-avy-in-line (symbol-function 'avy-goto-char-in-line)
   "Original definition of `avy-goto-char-in-line'.")
 
@@ -380,6 +383,16 @@ Default value is only using simplified Chinese characters.")
                                     (not ace-pinyin-enable-punctuation-translation)
                                     (not ace-pinyin-simplified-chinese-only-p))
      :window-flip arg)))
+
+(defun ace-pinyin-jump-char-timer (&optional arg)
+  "Ace-pinyin replacement of `avy-goto-char-timer'."
+  (interactive "P")
+  (let ((avy-all-windows (if arg
+			   (not avy-all-windows)
+			   avy-all-windows)))
+    (avy-with avy-goto-char-timer
+	      (setq avy--old-cands (avy--read-candidates 'pinyinlib-build-regexp-string))
+	      (avy-process avy--old-cands))))
 
 (defun ace-pinyin-jump-char-in-line (char)
   "Ace-pinyn replacement of `avy-goto-char-in-line'."
@@ -518,6 +531,7 @@ Without PREFIX, search both Chinese and English."
           (progn
             (fset 'avy-goto-char 'ace-pinyin-jump-char)
             (fset 'avy-goto-char-2 'ace-pinyin-jump-char-2)
+            (fset 'avy-goto-char-timer 'ace-pinyin-jump-char-timer)
             (fset 'avy-goto-char-in-line 'ace-pinyin-jump-char-in-line)
             (when ace-pinyin-treat-word-as-char
               (fset 'avy-goto-word-0 'ace-pinyin-goto-word-0)
@@ -529,6 +543,7 @@ Without PREFIX, search both Chinese and English."
         (progn
           (fset 'avy-goto-char ace-pinyin--original-avy)
           (fset 'avy-goto-char-2 ace-pinyin--original-avy-2)
+          (fset 'avy-goto-char-timer ace-pinyin--original-avy-timer)
           (fset 'avy-goto-char-in-line ace-pinyin--original-avy-in-line)
           (fset 'avy-goto-word-0 ace-pinyin--original-avy-word-0)
           (fset 'avy-goto-word-1 ace-pinyin--original-avy-word-1)
