@@ -410,25 +410,27 @@ Default value is only using simplified Chinese characters.")
   (let ((avy-goto-word-0-regexp "\\b\\sw\\|\\cc"))
     (funcall ace-pinyin--original-avy-word-0 arg)))
 
-(defun ace-pinyin-goto-word-1 (char &optional arg)
+(defun ace-pinyin-goto-word-1 (char &optional arg beg end symbol)
   "Ace-pinyin replacement of `avy-goto-word-1'."
   (interactive (list (read-char "char: " t)
                      current-prefix-arg))
-  (avy-with avy-goto-word-1
-    (let* ((str (string char))
-           (regex (cond ((string= str ".")
-                         "\\.")
-                        ((and avy-word-punc-regexp
-                              (string-match avy-word-punc-regexp str))
-                         (regexp-quote str))
-                        (t
-                         (concat
-                          "\\b"
-                          str
-                          (let ((chinese-regexp (ace-pinyin--build-regexp char t)))
-                            (unless (string= chinese-regexp "")
-                              (concat "\\|" chinese-regexp))))))))
-      (avy-jump regex :window-flip arg))))
+  (if symbol
+      (funcall ace-pinyin--original-avy-word-1 char arg beg end symbol)
+    (avy-with avy-goto-word-1
+      (let* ((str (string char))
+             (regex (cond ((string= str ".")
+                           "\\.")
+                          ((and avy-word-punc-regexp
+                                (string-match avy-word-punc-regexp str))
+                           (regexp-quote str))
+                          (t
+                           (concat
+                            "\\b"
+                            str
+                            (let ((chinese-regexp (ace-pinyin--build-regexp char t)))
+                              (unless (string= chinese-regexp "")
+                                (concat "\\|" chinese-regexp))))))))
+        (avy-jump regex :window-flip arg)))))
 
 (defun ace-pinyin-goto-subword-0 (&optional arg predicate)
   "Ace-pinyin replacement of `avy-goto-subword-0'."
